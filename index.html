@@ -18,6 +18,21 @@
             background-position: center;
             position: relative;
         }
+	#final-message a { 
+		text-decoration: underline !important;
+	}
+	#share-facebook a { 
+		text-decoration: none !important;
+	}
+	#share-whatsapp a { 
+		text-decoration: none !important;
+	}
+	#share-linkedin a { 
+		text-decoration: none !important;
+	}
+	#share-x a { 
+		text-decoration: none !important;
+	}
         .feedback-correct {
             animation: fadeIn 0.5s ease-in-out;
             box-shadow: 0 0 15px rgba(34, 197, 94, 0.5);
@@ -104,7 +119,7 @@
             <p id="final-message" class="text-slate-300 mb-8 text-lg">Je bent nu een volleerd Donateur Detective. De volgende keer dat een werver je aanspreekt, ben jij voorbereid!</p>
             
             <div class="mb-8">
-                <h3 class="text-xl font-semibold text-slate-200 mb-4">Deel je score!</h3>
+                <h3 class="text-xl font-semibold text-slate-200 mb-4">Deel je score en dit spel!</h3>
                 <div class="flex justify-center space-x-4">
                     <a id="share-facebook" href="#" target="_blank" class="w-12 h-12 flex items-center justify-center bg-blue-700 hover:bg-blue-800 text-white rounded-full text-2xl transition-transform transform hover:scale-110">
                         <i class="fab fa-facebook-f"></i>
@@ -301,13 +316,13 @@
             let message = "";
             const percentage = score / shuffledQuestions.length;
             if (percentage < 0.5) {
-                message = "Oei, je bent nog een gulle gever voor de slimme wervers. Speel nog een keer om je skills aan te scherpen!";
+                message = "Oei, je bent nog een gulle gever voor de slimme wervers. Speel nog een keer om je skills aan te scherpen! Zie dit <a href='https://www.donateursbelangen.nl/straatwerving'>dossier</a>.";
             } else if (percentage < 0.8) {
-                message = "Goed gedaan! Je doorziet de meeste trucs al. Nog een klein beetje oefening en niemand maakt je meer iets wijs.";
+                message = "Goed gedaan! Je doorziet de meeste trucs al. Nog een klein beetje oefening en niemand maakt je meer iets wijs. Zie dit <a href='https://www.donateursbelangen.nl/straatwerving'>dossier</a>.";
             } else {
-                message = "Uitstekend werk! Jij bent een volleerd Donateur Detective. Geen verkooptruc is voor jou nog een geheim.";
+                message = "Uitstekend werk! Jij bent een volleerd Donateur Detective. Geen verkooptruc is voor jou nog een geheim. Zie dit <a href='https://www.donateursbelangen.nl/straatwerving'>dossier</a>.";
             }
-            finalMessage.textContent = message;
+            finalMessage.innerHTML = message;
             updateShareLinks();
         }
 
