@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Donateur Detective: Herken de Truc!</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .feedback-correct {
+            animation: fadeIn 0.5s ease-in-out;
+            box-shadow: 0 0 15px rgba(34, 197, 94, 0.5);
+        }
+        .feedback-incorrect {
+            animation: fadeIn 0.5s ease-in-out;
+            box-shadow: 0 0 15px rgba(239, 68, 68, 0.5);
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body class="bg-slate-900 text-slate-100 flex items-center justify-center min-h-screen p-4">
+
+    <div class="w-full max-w-2xl mx-auto">
+        
+        <!-- Startscherm -->
+        <div id="start-screen" class="text-center bg-slate-800 p-8 rounded-xl shadow-2xl">
+            <h1 class="text-4xl md:text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-sky-400 to-indigo-500 mb-4">Donateur Detective</h1>
+            <p class="text-slate-300 mb-6 text-lg">Word jij de volgende gulle gever... of een meester in het herkennen van verkooptrucs? Test je skills en ontmasker de slimme vragen van fondsenwervers.</p>
+            <button id="start-btn" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-6 rounded-lg text-xl transition-transform transform hover:scale-105">
+                Start het Spel
+            </button>
+        </div>
+
+        <!-- Spelscherm -->
+        <div id="game-screen" class="hidden bg-slate-800 p-6 md:p-8 rounded-xl shadow-2xl">
+            <div class="flex justify-between items-center mb-6">
+                <p id="question-counter" class="text-sm font-semibold text-slate-400">Vraag 1 / 10</p>
+                <p id="score-display" class="text-sm font-semibold text-slate-400">Score: 0</p>
+            </div>
+
+            <div class="bg-slate-700/50 p-4 rounded-lg mb-6">
+                <p id="scenario-text" class="text-slate-300 italic text-center">Een werver van 'Stichting Red de Stadsduif' spreekt je aan...</p>
+            </div>
+
+            <h2 id="question-text" class="text-2xl md:text-3xl font-bold mb-8 text-center leading-snug">Vindt u ook dat we goed voor onze gevleugelde vrienden moeten zorgen?</h2>
+
+            <div id="choice-buttons" class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                <button data-choice="genuine" class="choice-btn bg-sky-600 hover:bg-sky-700 text-white font-bold py-4 px-4 rounded-lg text-lg transition-transform transform hover:scale-105">
+                    <span class="text-2xl">🤔</span><br>Oprechte Vraag
+                </button>
+                <button data-choice="trick" class="choice-btn bg-amber-600 hover:bg-amber-700 text-white font-bold py-4 px-4 rounded-lg text-lg transition-transform transform hover:scale-105">
+                    <span class="text-2xl">😏</span><br>Slimme Truc
+                </button>
+            </div>
+            
+            <div id="feedback-container" class="hidden">
+                 <div id="feedback-box" class="p-4 rounded-lg border-2">
+                    <h3 id="feedback-title" class="font-bold text-xl mb-2"></h3>
+                    <p id="feedback-text"></p>
+                </div>
+                <button id="next-btn" class="mt-6 w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-6 rounded-lg text-xl transition-transform transform hover:scale-105">
+                    Volgende Vraag
+                </button>
+            </div>
+        </div>
+
+        <!-- Eindscherm -->
+        <div id="end-screen" class="hidden text-center bg-slate-800 p-8 rounded-xl shadow-2xl">
+            <h1 class="text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-green-400 to-teal-500 mb-4">Missie Geslaagd!</h1>
+            <p class="text-slate-300 mb-2 text-lg">Je hebt het spel voltooid!</p>
+            <p id="final-score" class="text-5xl font-bold my-6">Score: 8 / 10</p>
+            <p id="final-message" class="text-slate-300 mb-8 text-lg">Je bent nu een volleerd Donateur Detective. De volgende keer dat een werver je aanspreekt, ben jij voorbereid!</p>
+            <button id="restart-btn" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-6 rounded-lg text-xl transition-transform transform hover:scale-105">
+                Speel Opnieuw
+            </button>
+        </div>
+
+    </div>
+
+    <script>
+        // --- DOM Elementen ---
+        const startScreen = document.getElementById('start-screen');
+        const gameScreen = document.getElementById('game-screen');
+        const endScreen = document.getElementById('end-screen');
+        
+        const startBtn = document.getElementById('start-btn');
+        const restartBtn = document.getElementById('restart-btn');
+        const nextBtn = document.getElementById('next-btn');
+        
+        const questionCounter = document.getElementById('question-counter');
+        const scoreDisplay = document.getElementById('score-display');
+        const scenarioText = document.getElementById('scenario-text');
+        const questionText = document.getElementById('question-text');
+        
+        const choiceButtonsContainer = document.getElementById('choice-buttons');
+        const choiceBtns = document.querySelectorAll('.choice-btn');
+
+        const feedbackContainer = document.getElementById('feedback-container');
+        const feedbackBox = document.getElementById('feedback-box');
+        const feedbackTitle = document.getElementById('feedback-title');
+        const feedbackText = document.getElementById('feedback-text');
+
+        const finalScore = document.getElementById('final-score');
+        const finalMessage = document.getElementById('final-message');
+
+        // --- Spel Data ---
+        const questions = [
+            {
+                scenario: "Een werver van 'Stichting Red de Stadsduif' spreekt je aan.",
+                question: "Vindt u ook dat we goed voor onze gevleugelde vrienden moeten zorgen?",
+                isTrick: true,
+                explanation: "Dit is een 'ja-ladder'. De vraag is zo gesteld dat je bijna geen 'nee' kunt zeggen. Zo kom je in een positieve flow, waardoor 'nee' zeggen op de donatievraag moeilijker wordt."
+            },
+            {
+                scenario: "Bij de supermarkt staat een werver voor het 'Baby Egel Fonds'.",
+                question: "Bent u al bekend met de gevaren die jonge egels in de herfst tegenkomen?",
+                isTrick: false,
+                explanation: "Dit is een oprechte, open vraag. Het is bedoeld om een gesprek te starten en je te informeren, niet om je direct in een 'ja'-positie te dwingen."
+            },
+            {
+                scenario: "Een huis-aan-huis werver van 'Klimaatbewust Leven' belt aan.",
+                question: "Veel van uw buren doen al mee. Steunt u ons ook om de hele straat klimaatneutraal te maken?",
+                isTrick: true,
+                explanation: "Dit heet 'sociale bewijskracht'. Door te zeggen dat je buren al meedoen, wordt er sociale druk op je uitgeoefend. Je donatie moet jouw keuze zijn, niet die van de buren."
+            },
+            {
+                scenario: "In het winkelcentrum staat iemand van 'Kunst voor Kids'.",
+                question: "Wilt u liever met €10 per maand helpen, of kiest u voor de eenmalige donatie van €50?",
+                isTrick: true,
+                explanation: "Dit is een valse dichotomie. Er worden twee opties gegeven die allebei leiden tot een donatie. De optie om 'niet te doneren' wordt handig overgeslagen."
+            },
+             {
+                scenario: "Een werver van 'Help de Zeehond' heeft een tablet in de hand.",
+                question: "Top dat u wilt helpen! Zullen we uw gegevens dan meteen even invullen?",
+                isTrick: true,
+                explanation: "Dit is de 'assumptieve verkoop'. De werver gaat er al vanuit dat je 'ja' hebt gezegd op een donatie, terwijl die vraag misschien nog niet eens gesteld is. Ze slaan een cruciale stap over."
+            },
+            {
+                scenario: "Op een festival spreekt een werver van 'Schoon Water Wereldwijd' je aan.",
+                question: "Heeft u vragen over hoe wij precies te werk gaan in de projectlanden?",
+                isTrick: false,
+                explanation: "Dit is een goede, informatieve vraag. Het geeft jou de controle en de kans om meer te leren voordat je een beslissing neemt. Transparantie is een goed teken."
+            },
+            {
+                scenario: "Iemand van 'Eerlijke Koffieboeren' staat op het station.",
+                question: "Stel, u zou een klein bedrag per maand kunnen missen, zou u dan overwegen om de boeren te helpen?",
+                isTrick: true,
+                explanation: "Een hypothetische vraag. Het is makkelijk om 'ja' te zeggen op een 'stel dat'-scenario. Daarmee committeer je je gevoelsmatig al, wat de drempel om later 'nee' te zeggen verhoogt."
+            },
+            {
+                scenario: "Een werver van de 'Nationale Bijenstichting' spreekt je aan.",
+                question: "U ziet eruit als iemand die geeft om de natuur. Klopt dat?",
+                isTrick: true,
+                explanation: "Dit is een compliment-techniek. Door je een positief label te geven ('iemand die om de natuur geeft'), voel je de druk om je naar dat label te gedragen... door te doneren."
+            },
+            {
+                scenario: "Voor de bibliotheek staat een werver van 'Lezen voor Iedereen'.",
+                question: "Welk onderdeel van ons werk spreekt u het meeste aan: de voorleesprojecten of de boekenpakketten?",
+                isTrick: false,
+                explanation: "Dit is een oprechte interessevraag. Het helpt de werver om het gesprek te richten op wat jij belangrijk vindt, wat leidt tot een relevanter en eerlijker gesprek."
+            },
+            {
+                scenario: "Een werver van 'Dieren in Nood' laat een foto van een zielig dier zien.",
+                question: "U wilt toch niet dat dit schattige hondje op straat moet leven?",
+                isTrick: true,
+                explanation: "Dit is inspelen op emoties en schuldgevoel. Hoewel het doel goed kan zijn, is het een drukmiddel om je een onprettig gevoel te geven als je 'nee' zou zeggen."
+            }
+        ];
+
+        // --- Spel Logica ---
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let shuffledQuestions = [];
+
+        function startGame() {
+            currentQuestionIndex = 0;
+            score = 0;
+            shuffledQuestions = [...questions].sort(() => Math.random() - 0.5); // Vragen shufflen
+            
+            startScreen.classList.add('hidden');
+            endScreen.classList.add('hidden');
+            gameScreen.classList.remove('hidden');
+            
+            showQuestion();
+        }
+
+        function showQuestion() {
+            resetState();
+            if (currentQuestionIndex >= shuffledQuestions.length) {
+                endGame();
+                return;
+            }
+
+            const currentQuestion = shuffledQuestions[currentQuestionIndex];
+            questionCounter.textContent = `Vraag ${currentQuestionIndex + 1} / ${shuffledQuestions.length}`;
+            scoreDisplay.textContent = `Score: ${score}`;
+            scenarioText.textContent = currentQuestion.scenario;
+            questionText.textContent = currentQuestion.question;
+        }
+        
+        function resetState() {
+            feedbackContainer.classList.add('hidden');
+            choiceButtonsContainer.classList.remove('hidden');
+            feedbackBox.classList.remove('feedback-correct', 'feedback-incorrect', 'border-green-500', 'border-red-500');
+        }
+
+        function handleChoice(e) {
+            const selectedChoice = e.currentTarget.dataset.choice;
+            const isTrickGuess = selectedChoice === 'trick';
+            const currentQuestion = shuffledQuestions[currentQuestionIndex];
+            
+            choiceButtonsContainer.classList.add('hidden');
+            feedbackContainer.classList.remove('hidden');
+
+            if (isTrickGuess === currentQuestion.isTrick) {
+                // Goed geraden
+                score++;
+                scoreDisplay.textContent = `Score: ${score}`;
+                feedbackBox.classList.add('feedback-correct', 'border-green-500');
+                feedbackTitle.textContent = "Goed gezien, Detective!";
+                feedbackTitle.classList.remove('text-red-400');
+                feedbackTitle.classList.add('text-green-400');
+            } else {
+                // Fout geraden
+                feedbackBox.classList.add('feedback-incorrect', 'border-red-500');
+                feedbackTitle.textContent = "Helaas, dat was een valstrik!";
+                feedbackTitle.classList.remove('text-green-400');
+                feedbackTitle.classList.add('text-red-400');
+            }
+
+            feedbackText.textContent = currentQuestion.explanation;
+        }
+        
+        function nextQuestion() {
+            currentQuestionIndex++;
+            showQuestion();
+        }
+
+        function endGame() {
+            gameScreen.classList.add('hidden');
+            endScreen.classList.remove('hidden');
+            finalScore.textContent = `${score} / ${shuffledQuestions.length}`;
+
+            let message = "";
+            const percentage = score / shuffledQuestions.length;
+            if (percentage < 0.5) {
+                message = "Oei, je bent nog een gulle gever voor de slimme wervers. Speel nog een keer om je skills aan te scherpen!";
+            } else if (percentage < 0.8) {
+                message = "Goed gedaan! Je doorziet de meeste trucs al. Nog een klein beetje oefening en niemand maakt je meer iets wijs.";
+            } else {
+                message = "Uitstekend werk! Jij bent een volleerd Donateur Detective. Geen verkooptruc is voor jou nog een geheim.";
+            }
+            finalMessage.textContent = message;
+        }
+
+        // --- Event Listeners ---
+        startBtn.addEventListener('click', startGame);
+        restartBtn.addEventListener('click', startGame);
+        nextBtn.addEventListener('click', nextQuestion);
+        choiceBtns.forEach(button => button.addEventListener('click', handleChoice));
+    </script>
+</body>
+</html>
