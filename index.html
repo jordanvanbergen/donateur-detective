@@ -13,6 +13,10 @@
     <style>
         body {
             font-family: 'Inter', sans-serif;
+            background-image: url('https://stichtingdonateursbelangen.box.com/shared/static/hxytd2km9t931hvgs1u9pq38428c82e0.jpg');
+            background-size: cover;
+            background-position: center;
+            position: relative;
         }
         .feedback-correct {
             animation: fadeIn 0.5s ease-in-out;
@@ -24,13 +28,9 @@
         }
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(-10px); }
-            to { opacity: 1; transform: translateY(0); }
+            to { opacity: 0.85; transform: translateY(0); }
         }
         .start-screen-bg {
-            background-image: url('https://stichtingdonateursbelangen.box.com/shared/static/hxytd2km9t931hvgs1u9pq38428c82e0.jpg');
-            background-size: cover;
-            background-position: center;
-            position: relative;
         }
         .start-screen-bg::before {
             content: '';
@@ -46,6 +46,9 @@
             position: relative;
             z-index: 1;
         }
+	.bg-slate-800 {
+	    --tw-bg-opacity: 0.85 !important;
+	}
     </style>
 </head>
 <body class="bg-slate-900 text-slate-100 flex items-center justify-center min-h-screen p-4">
@@ -55,7 +58,7 @@
         <!-- Startscherm --><div id="start-screen" class="start-screen-bg text-center p-8 rounded-xl shadow-2xl overflow-hidden">
             <div class="relative z-10 bg-slate-800/80 p-6 rounded-lg">
                 <h1 class="text-4xl md:text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-sky-400 to-indigo-500 mb-4">Donateur Detective</h1>
-                <p class="text-slate-300 mb-6 text-lg">Word jij de volgende gulle gever... of een meester in het herkennen van verkooptrucs? Test je skills en ontmasker de slimme vragen van fondsenwervers.</p>
+                <p class="text-slate-300 mb-6 text-lg">Word jij de volgende gulle gever... of een meester in het herkennen van verkooptrucs? Test je skills en ontmasker de slimme vragen van straat- en huis-aan-huis wervers.</p>
                 <button id="start-btn" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-6 rounded-lg text-xl transition-transform transform hover:scale-105">
                     Start het Spel
                 </button>
@@ -334,5 +337,3 @@
     </script>
 </body>
 </html>
-
-
